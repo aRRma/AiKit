@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>arrma-kit: шпаргалка</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one column. Сверху цикл как дорожка из трёх шагов с петлёй перепроверки под каждым,
+   потом одна задача как переписка, потом карточки команд с примерами, в конце справка.
+   Синий = шаг работы, оранжевый = перепроверка, тёмная плашка = то, что печатаешь ты. */
+:root {
+  --bg: #EEF1F5; --surface: #FFFFFF; --ink: #161D27; --muted: #586474; --line: #D3DAE3;
+  --step: #1B5AA3; --step-soft: #E1ECF9; --check: #B04A0A; --check-soft: #FCEADB;
+  --term: #18212D; --term-ink: #E8EDF4; --term-dim: #8FA0B5;
+  --chip: #E6EAF0; --ok: #1C774A; --warn: #915500;
+  --sans: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, "Cascadia Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10141A; --surface: #19202A; --ink: #E7EBF1; --muted: #9AA7B7; --line: #2B3543;
+  --step: #82B6F2; --step-soft: #1B2A3F; --check: #F2A56B; --check-soft: #38271A;
+  --term: #0A0E13; --term-ink: #E8EDF4; --term-dim: #8494A8;
+  --chip: #232C38; --ok: #6DCB9C; --warn: #E3B55F; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10141A; --surface: #19202A; --ink: #E7EBF1; --muted: #9AA7B7; --line: #2B3543;
+  --step: #82B6F2; --step-soft: #1B2A3F; --check: #F2A56B; --check-soft: #38271A;
+  --term: #0A0E13; --term-ink: #E8EDF4; --term-dim: #8494A8;
+  --chip: #232C38; --ok: #6DCB9C; --warn: #E3B55F; color-scheme: dark }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 36px 64px; }
+.wrap { max-width: 940px; margin: 0 auto; display: flex; flex-direction: column; gap: 52px; }
+section { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 16px; }
+h1 { font-size: 44px; line-height: 1.05; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 26px; line-height: 1.2; margin: 0; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+h3 { font-size: 16px; margin: 0; font-weight: 600; }
+p { margin: 0; }
+.lead { color: var(--muted); font-size: 19px; max-width: 58ch; margin-top: 12px; }
+.sub { color: var(--muted); max-width: 66ch; }
+.small { color: var(--muted); font-size: 14px; max-width: 70ch; }
+code { font-family: var(--mono); font-size: 0.87em; background: var(--chip); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+a { color: var(--step); }
+
+nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+nav a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; }
+nav a:hover { border-color: var(--step); color: var(--step); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--step); outline-offset: 2px; }
+
+/* то, что печатает человек */
+.say { display: flex; align-items: center; gap: 10px; background: var(--term); color: var(--term-ink); border-radius: 8px; padding: 9px 10px 9px 14px; font: 14px/1.45 var(--mono); min-width: 0; }
+.say::before { content: "›"; color: var(--term-dim); flex: none; }
+.say span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.say b { font-weight: 600; color: #9CC7FF; }
+.say.k b { color: #FFB884; }
+button.copy { font: 500 12px var(--sans); color: var(--term-dim); background: transparent; border: 1px solid #3A4656; border-radius: 6px; padding: 2px 8px; cursor: pointer; flex: none; }
+button.copy:hover { color: var(--term-ink); border-color: var(--term-dim); }
+
+/* цикл */
+.track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.stop { display: flex; flex-direction: column; gap: 0; min-width: 0; position: relative; }
+.stop + .stop::before { content: "→"; position: absolute; left: -19px; top: 34px; color: var(--muted); font-size: 18px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px 12px 0 0; padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.n { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--step); color: var(--surface); font: 600 14px var(--sans); }
+.card h3 { font-size: 19px; margin-top: 6px; }
+.card .cmd { font: 600 14px var(--mono); color: var(--step); overflow-wrap: anywhere; }
+.card p { font-size: 14.5px; color: var(--muted); }
+.loop { background: var(--check-soft); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; padding: 10px 16px; font-size: 14px; display: flex; flex-direction: column; gap: 2px; }
+.loop .cmd { font: 600 14px var(--mono); color: var(--check); }
+
+/* одна задача как переписка */
+.talk { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 8px 18px; }
+.turn { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 6px 18px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.turn:last-child { border-bottom: 0; }
+.turn .when { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--step); padding-top: 9px; }
+.turn.k .when { color: var(--check); }
+.turn .body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ans { font-size: 15px; color: var(--muted); padding-left: 14px; border-left: 2px solid var(--line); }
+.ans b { color: var(--ink); font-weight: 600; }
+
+/* карточки команд */
+.cmds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.c { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.c h3 { font: 600 16px var(--mono); color: var(--step); overflow-wrap: anywhere; }
+.c.k h3 { color: var(--check); }
+.c.x h3 { color: var(--ink); }
+.c > p { font-size: 15px; }
+.c .get { font-size: 14px; color: var(--muted); }
+.c .get b { color: var(--ink); font-weight: 600; }
+.wide { grid-column: 1 / -1; }
+.ex { display: flex; flex-direction: column; gap: 6px; }
+.lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+/* справка */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.box ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.tag { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.tag.ok { color: var(--ok); } .tag.warn { color: var(--warn); }
+.rows { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 18px; }
+.row { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 4px 18px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.row:last-child { border-bottom: 0; }
+.row .k { font: 600 14px var(--mono); overflow-wrap: anywhere; }
+.row .k.o { color: var(--check); }
+.price { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.price div { background: var(--chip); border-radius: 8px; padding: 10px 12px; font-size: 13px; color: var(--muted); }
+.price b { display: block; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.install { background: var(--term); color: var(--term-ink); border-radius: 12px; padding: 14px 16px 16px; }
+.install .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: var(--term-dim); }
+.install pre { margin: 0; overflow-x: auto; font: 13px/1.6 var(--mono); }
+ol.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; max-width: 72ch; }
+
+@media (max-width: 760px) {
+  h1 { font-size: 34px; } h2 { font-size: 22px; }
+  .track, .cmds, .grid2 { grid-template-columns: 1fr; }
+  .stop + .stop::before { content: "↓"; left: 50%; top: -22px; transform: translateX(-50%); }
+  .turn, .row { grid-template-columns: 1fr; }
+  .turn .when { padding-top: 0; }
+  .price { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>arrma-kit</h1>
+    <p class="lead">Набор команд для Claude Code. Агент делает задачу маленькими шагами. После каждого шага его проверяют другие агенты со свежей головой. Чинится только то, что подтвердилось.</p>
+    <nav aria-label="Разделы">
+      <a href="#cycle">Цикл</a><a href="#day">Одна задача целиком</a><a href="#commands">Команды с примерами</a><a href="#agents">Агенты</a><a href="#files">Файлы</a><a href="#models">Модели и расход</a><a href="#install">Установка</a>
+    </nav>
+  </header>
+
+  <section id="cycle">
+    <h2>Цикл: шаг, потом перепроверка</h2>
+    <p class="sub">Три шага идут по порядку. После каждого запускаешь перепроверку, сколько раз хочешь. Она сама понимает, что проверять.</p>
+    <div class="track">
+      <div class="stop">
+        <div class="card"><span class="n">1</span><h3>Анализ</h3><span class="cmd">/arrma-task-analysis</span><p>Записывает требования твоими словами, находит нужные места в коде, задаёт вопросы по одному.</p></div>
+        <div class="loop"><span class="cmd">↻ /arrma-recheck</span><span>проверит анализ</span></div>
+      </div>
+      <div class="stop">
+        <div class="card"><span class="n">2</span><h3>План</h3><span class="cmd">/arrma-task-plan</span><p>Делит работу на маленькие этапы. У каждого написано, что сделать и чем проверить.</p></div>
+        <div class="loop"><span class="cmd">↻ /arrma-recheck</span><span>проверит план</span></div>
+      </div>
+      <div class="stop">
+        <div class="card"><span class="n">3</span><h3>Этап</h3><span class="cmd">/arrma-task-stage</span><p>Делает один этап с тестом и останавливается. Повторяешь для каждого этапа.</p></div>
+        <div class="loop"><span class="cmd">↻ /arrma-recheck</span><span>проверит код этапа</span></div>
+      </div>
+    </div>
+    <p class="small">Когда перепроверка отвечает «Новых стоящих находок нет, можно идти дальше», переходи к следующему шагу. Между шагами делай <code>/clear</code>: всё нужное лежит в файлах задачи, а чистый контекст дешевле и точнее.</p>
+  </section>
+
+  <section id="day">
+    <h2>Одна задача целиком</h2>
+    <p class="sub">Так выглядит работа от начала до конца. Ответы агента сокращены, это пример.</p>
+    <div class="talk">
+      <div class="turn"><div class="when">Даёшь задачу</div><div class="body">
+        <div class="say"><span><b>/arrma-task-analysis</b> Отозванная лицензия должна возвращать код LicenseRevoked во всех версиях API</span><button class="copy" data-copy="/arrma-task-analysis ">копия</button></div>
+        <div class="ans">Записал требования и анализ. <b>Вопрос Q1:</b> делаем от ветки main или от feat-pilot? Советую main: в feat-pilot работа не закончена.</div>
+      </div></div>
+      <div class="turn k"><div class="when">Чистишь контекст, отвечаешь и проверяешь</div><div class="body">
+        <div class="say"><span>/clear</span><button class="copy" data-copy="/clear">копия</button></div>
+        <div class="say k"><span><b>/arrma-recheck</b> Q1: делаем от main</span><button class="copy" data-copy="/arrma-recheck Q1: ">копия</button></div>
+        <div class="ans">Ответ записал в требования. Две находки подтвердились, анализ поправил. Три отклонил и записал почему.</div>
+      </div></div>
+      <div class="turn k"><div class="when">Проверяешь ещё раз</div><div class="body">
+        <div class="say k"><span><b>/arrma-recheck</b></span><button class="copy" data-copy="/arrma-recheck">копия</button></div>
+        <div class="ans"><b>Новых стоящих находок нет, можно идти дальше.</b></div>
+      </div></div>
+      <div class="turn"><div class="when">Просишь план</div><div class="body">
+        <div class="say"><span>/clear</span><button class="copy" data-copy="/clear">копия</button></div>
+        <div class="say"><span><b>/arrma-task-plan</b></span><button class="copy" data-copy="/arrma-task-plan">копия</button></div>
+        <div class="ans">Два этапа. Этап 1: поле «отозвана», код ошибки и документация. Этап 2: полный прогон. Потом снова <code>/arrma-recheck</code>.</div>
+      </div></div>
+      <div class="turn"><div class="when">Делаешь этап</div><div class="body">
+        <div class="say"><span>/clear</span><button class="copy" data-copy="/clear">копия</button></div>
+        <div class="say"><span><b>/arrma-task-stage</b></span><button class="copy" data-copy="/arrma-task-stage">копия</button></div>
+        <div class="ans"><b>Сделано:</b> этап 1. <b>Проверено:</b> сборка — успех; тесты этапа (фильтр <code>RevokedTests</code>) — успех, 7 прошло. <b>Не проверено:</b> ничего. <b>Документация:</b> <code>docs/api.md</code> — новый код ошибки. <b>Осталось:</b> этап 2, ничего не закоммичено.</div>
+      </div></div>
+      <div class="turn k"><div class="when">Проверяешь код</div><div class="body">
+        <div class="say"><span>/clear</span><button class="copy" data-copy="/clear">копия</button></div>
+        <div class="say k"><span><b>/arrma-recheck</b></span><button class="copy" data-copy="/arrma-recheck">копия</button></div>
+        <div class="ans">Запустил сборку, тесты, <code>code-review high</code> и трёх проверяющих. Одна находка была и до этапа, отклонил. Новых стоящих находок нет.</div>
+      </div></div>
+      <div class="turn"><div class="when">Спрашиваешь, где задача</div><div class="body">
+        <div class="say"><span><b>/arrma-task-status</b></span><button class="copy" data-copy="/arrma-task-status">копия</button></div>
+        <div class="ans"><b>Сделано:</b> этап 1. <b>Дальше:</b> этап 2, команда <code>/arrma-task-stage</code>. <b>Нужно от вас:</b> ничего.</div>
+      </div></div>
+      <div class="turn"><div class="when">В конце</div><div class="body">
+        <div class="say"><span><b>/arrma-task-summary</b></span><button class="copy" data-copy="/arrma-task-summary">копия</button></div>
+        <div class="ans">Описание задачи: проблема, что сделано, ожидаемое поведение, как проверить, как выкатить.</div>
+      </div></div>
+    </div>
+  </section>
+
+  <section id="commands">
+    <h2>Команды с примерами</h2>
+    <p class="sub">Можно писать и обычными словами: «перепроверь ещё раз», «сделай план», «объясни как пятилетнему». Обычно нужная команда включается сама.</p>
+    <div class="cmds">
+      <div class="c">
+        <h3>/arrma-task-analysis</h3>
+        <p>Когда появилась новая задача.</p>
+        <div class="ex"><span class="lbl">Пример</span>
+          <div class="say"><span><b>/arrma-task-analysis</b> Добавить в отчёт фильтр по дате</span><button class="copy" data-copy="/arrma-task-analysis ">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> файлы <code>requirements.md</code> и <code>analysis.md</code>, итог в 10 строк и первый вопрос.</p>
+      </div>
+      <div class="c">
+        <h3>/arrma-task-plan</h3>
+        <p>Когда анализ готов и нужен план. Или когда план надо упростить.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-task-plan</b></span><button class="copy" data-copy="/arrma-task-plan">копия</button></div>
+          <div class="say"><span><b>/arrma-task-plan</b> Q2: седьмой день входит</span><button class="copy" data-copy="/arrma-task-plan Q2: ">копия</button></div>
+          <div class="say"><span>упрости план, он слишком тяжёлый</span><button class="copy" data-copy="упрости план, он слишком тяжёлый">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> файл <code>plan.md</code> с этапами. Ответ на вопрос запишет в требования. Если остался вопрос без ответа, сначала задаст его. Требование без твоего согласия не уберёт.</p>
+      </div>
+      <div class="c">
+        <h3>/arrma-task-stage</h3>
+        <p>Когда пора писать код. Делает один этап и останавливается.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-task-stage</b></span><button class="copy" data-copy="/arrma-task-stage">копия</button></div>
+          <div class="say"><span><b>/arrma-task-stage</b> 2</span><button class="copy" data-copy="/arrma-task-stage 2">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> код этапа с тестом и отчёт: что сделано, чем проверено, что не проверено, какие доки изменены, что осталось. Без номера берёт первый несделанный этап.</p>
+      </div>
+      <div class="c k">
+        <h3>/arrma-recheck</h3>
+        <p>После любого шага. Можно дописать ответ на вопрос агента или своё замечание.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say k"><span><b>/arrma-recheck</b></span><button class="copy" data-copy="/arrma-recheck">копия</button></div>
+          <div class="say k"><span><b>/arrma-recheck</b> model=sonnet effort=medium</span><button class="copy" data-copy="/arrma-recheck model=sonnet effort=medium">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> таблицу «находка, решение, почему» или фразу «Новых стоящих находок нет». Второй пример дешевле: проверяющие идут на модели попроще.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-task-status</h3>
+        <p>Когда хочешь быстро понять, где сейчас задача.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-task-status</b></span><button class="copy" data-copy="/arrma-task-status">копия</button></div>
+          <div class="say"><span>где мы сейчас по задаче и что дальше?</span><button class="copy" data-copy="где мы сейчас по задаче и что дальше?">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> до 6 строк: сделано, сейчас, дальше, что нужно от тебя. Пишет в стиле STE. Только читает план и git, ничего не запускает, поэтому быстро и дёшево.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-verify-claims</h3>
+        <p>Когда надо проверить по коду одно утверждение или документ.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-verify-claims</b> правда ли, что TariffId в API v2 имеет тип string?</span><button class="copy" data-copy="/arrma-verify-claims ">копия</button></div>
+          <div class="say"><span><b>/arrma-verify-claims</b> проверь docs/API.md по коду</span><button class="copy" data-copy="/arrma-verify-claims проверь docs/API.md по коду">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> таблицу с ответом по каждому утверждению: подтверждено, опровергнуто, не найдено или не проверить. К каждому место в коде и цитата.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-eli5</h3>
+        <p>Когда ответ агента сложный или длинный.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-eli5</b></span><button class="copy" data-copy="/arrma-eli5">копия</button></div>
+          <div class="say"><span><b>/arrma-eli5</b> что такое Stop-хук</span><button class="copy" data-copy="/arrma-eli5 ">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> то же самое коротко и простыми словами. Без текста перепишет свой последний ответ.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-task-summary</h3>
+        <p>Когда задача готова и нужно её описание. По умолчанию пишет простым текстом для менеджера.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-task-summary</b></span><button class="copy" data-copy="/arrma-task-summary">копия</button></div>
+          <div class="say"><span><b>/arrma-task-summary</b> redmine dev</span><button class="copy" data-copy="/arrma-task-summary redmine dev">копия</button></div>
+          <div class="say"><span><b>/arrma-task-summary</b> md</span><button class="copy" data-copy="/arrma-task-summary md">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> пять блоков: проблема, что сделано, ожидаемое поведение, как проверить, как выкатить. <code>md</code> и <code>redmine</code> меняют разметку, <code>dev</code> добавляет важные технические детали для разработчика. Пишет по настоящим изменениям в ветке. Сам никуда не публикует.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-claude-md-check</h3>
+        <p>Когда настраиваешь проект под arrma-kit: есть ли в <code>CLAUDE.md</code> всё нужное для работы.</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span><b>/arrma-claude-md-check</b></span><button class="copy" data-copy="/arrma-claude-md-check">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> таблицу из 15 пунктов (сборка, тесты, запуск, папка задач, язык, STE, LSP, git, документация, запреты и другие) со статусом и местом в файле, противоречия и готовые строки, которых не хватает. Сам файл не правит.</p>
+      </div>
+      <div class="c x">
+        <h3>/arrma-ste</h3>
+        <p>Когда нужен строгий простой язык: твой стиль STE (ASD-STE100 для русского).</p>
+        <div class="ex"><span class="lbl">Примеры</span>
+          <div class="say"><span>объясни по STE, как проверяется лицензия</span><button class="copy" data-copy="объясни по STE, ">копия</button></div>
+          <div class="say"><span>без STE</span><button class="copy" data-copy="без STE">копия</button></div></div>
+        <p class="get"><b>Получишь:</b> ответы короткими предложениями, один термин на понятие, главное первым. Стиль включается словами «по STE» и действует до конца сессии. «Без STE» его выключает. На комментарии в коде, README и коммиты не действует.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="agents">
+    <h2>Агенты: кто проверяет</h2>
+    <p class="sub">Вызывать их самому не нужно, их запускает перепроверка. Все четверо только проверяют. Править файлы они не могут.</p>
+    <div class="rows">
+      <div class="row"><span class="k o">arrma-gap-finder</span><span>Ищет ошибки и то, что забыли: вызывающий код, тесты, миграции, соседние ветки.</span></div>
+      <div class="row"><span class="k o">arrma-simplifier</span><span>Ищет, что можно убрать или сделать проще.</span></div>
+      <div class="row"><span class="k o">arrma-spec-reviewer</span><span>Сверяет работу с требованиями: что выполнено, что нет, что сделано лишнего.</span></div>
+      <div class="row"><span class="k o">arrma-finding-verifier</span><span>Пытается опровергнуть каждую находку остальных. Дальше идут только подтверждённые.</span></div>
+    </div>
+    <p class="small">Порядок внутри перепроверки: сборка, тесты и <code>code-review high</code> (только для кода) → три агента одновременно → опровержение находок → оценка «польза против цены» → минимальные правки → после правок кода снова тесты и «Проверка» этапа. Тест упал из-за среды (нет Docker, VPN, базы) — это не находка, код не чинят.</p>
+  </section>
+
+  <section id="files">
+    <h2>Файлы задачи</h2>
+    <p class="sub">На каждую задачу одна папка с тремя файлами. Папка берётся из <code>CLAUDE.md</code> проекта, иначе это <code>docs/tasks/&lt;задача&gt;/</code>.</p>
+    <div class="rows">
+      <div class="row"><span class="k">requirements.md</span><span>Требования твоими словами: что обязательно, какие ограничения, что не делаем. В разделе «Решения» копятся твои ответы на вопросы.</span></div>
+      <div class="row"><span class="k">analysis.md</span><span>Как устроено сейчас, что менять, риски, вопросы с номерами Q1, Q2.</span></div>
+      <div class="row"><span class="k">plan.md</span><span>Этапы, последний — «Полный прогон» (все тесты и смоук). У каждого сделанного этапа отметка и строки «База», «Файлы этапа», «Проверено». Строка «Стоп» значит, что агент остановился и ждёт тебя. Строка «Ждёт: документация» в этапе — правка документации ждёт твоего «да». Внизу отклонённые находки и строки «Ждёт», чтобы не поднимать их снова.</span></div>
+    </div>
+    <p class="small">Задача набора — папка с <code>requirements.md</code>. Старые задачи проекта в другом формате набор не трогает. Всё состояние задачи лежит в этих файлах, поэтому между шагами можно делать <code>/clear</code>. Если задач несколько, агент берёт незаконченную, а когда таких несколько, спрашивает. Агент не коммитит их, пока не попросишь.</p>
+  </section>
+
+  <section id="models">
+    <h2>Модели и расход</h2>
+    <div class="grid2">
+      <div class="box">
+        <h3>Кто на какой модели</h3>
+        <ul>
+          <li>Поиск ошибок и опровержение находок: последняя Opus.</li>
+          <li>Упрощение, сверка с требованиями, сбор фактов в анализе, статус и описание задачи: последняя Sonnet.</li>
+          <li>Остальное идёт на модели твоей сессии.</li>
+          <li>Поменять на один раз: допиши <code>model=</code> и <code>effort=</code> к команде.</li>
+          <li>Модели: <code>opus</code>, <code>sonnet</code>, <code>haiku</code>, <code>fable</code>.</li>
+          <li>Усилие: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>.</li>
+        </ul>
+        <p class="small">Встроенный <code>code-review</code> идёт на модели сессии, <code>model=</code> на него не действует. Правило в памяти проекта «всегда <code>model: sonnet</code>» перебьёт модели агентов: убери его. Модель агента видно в <code>/tasks</code>.</p>
+      </div>
+      <div class="box">
+        <h3>Сколько стоит шаг</h3>
+        <div class="price">
+          <div><b>$0.5–0.9</b>анализ</div><div><b>$1.3–1.8</b>перепроверка</div><div><b>$0.3</b>план</div><div><b>$0.4</b>этап</div><div><b>$0.13</b>статус</div><div><b>$0.15</b>описание задачи</div>
+        </div>
+        <p class="small">Замеры на маленьком тестовом проекте в сессии на Opus. На большом проекте будет больше.</p>
+        <h3>Как тратить меньше</h3>
+        <ul>
+          <li>Делай <code>/clear</code> между шагами.</li>
+          <li>Не запускай перепроверку повторно, если с прошлой ничего не менялось.</li>
+          <li>Для обычного этапа: <code>/arrma-recheck model=sonnet</code>.</li>
+          <li>Смотри, кто тратит: программа <code>session-report</code> из набора.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <span class="tag ok">Запрещено жёстко</span>
+        <ul>
+          <li>Проверяющие не могут править файлы.</li>
+          <li>Проверяющие не могут запускать других агентов.</li>
+          <li>Проверяющим закрыты MCP-серверы Claude_Docs, GitHub, MongoDB, Playwright и Telegram.</li>
+          <li>Команды сами разрешают себе только чтение из git, а <code>/arrma-task-stage</code> ещё снимок <code>git stash create</code>. Сборку и тесты разрешаешь ты.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <span class="tag warn">Только просьба в тексте</span>
+        <ul>
+          <li>Не выдумывать: про код говорить только с местом в файле.</li>
+          <li>Не ослаблять тесты и не убирать требования без согласия.</li>
+          <li>Не коммитить без просьбы.</li>
+        </ul>
+        <p class="small">Модель может нарушить просьбу. Если нарушает повторно, правило переносят в разрешения или хук.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Установка</h2>
+    <div class="install">
+      <div class="bar"><span>PowerShell, из папки arrma-kit</span><button class="copy" data-copy-from="inst">копия</button></div>
+<pre id="inst">New-Item -ItemType Directory -Force "$HOME/.claude/skills", "$HOME/.claude/agents", "$HOME/.claude/rules" | Out-Null
+Copy-Item skills/* "$HOME/.claude/skills/" -Recurse -Force
+Copy-Item agents/*.md "$HOME/.claude/agents/" -Force
+Copy-Item rules/arrma.md "$HOME/.claude/rules/" -Force</pre>
+    </div>
+    <ol class="steps">
+      <li>Выполни команды. Обновление делается ими же.</li>
+      <li>Удали старые версии без приставки <code>arrma-</code>, иначе команды сработают дважды. Остальная чистка (<code>spec-guard</code>, старые правила и раздел STE в <code>CLAUDE.md</code>) описана в <code>README.md</code>.</li>
+      <li>В <code>CLAUDE.md</code> каждого проекта напиши, как запускать сборку, тесты затронутого кода и все тесты, по каким ошибкам видно сбой среды и какие живые проверки нужны. Чего не хватает, покажет <code>/arrma-claude-md-check</code>.</li>
+      <li>Для русских имён файлов один раз: <code>git config --global core.quotepath false</code>.</li>
+      <li>Перезапусти Claude Code.</li>
+      <li>По желанию собери <code>session-report</code>: команда в <code>README.md</code>. Она показывает расход и вызовы по каждому агенту.</li>
+    </ol>
+    <div class="grid2">
+      <div class="box"><span class="tag ok">Проверено</span>
+        <ul><li>В облаке (Linux): полный цикл на тестовом проекте C#, в том числе с <code>/clear</code> между шагами.</li><li>На ПК (Windows, VS Code): полный цикл на рабочем проекте, 2 этапа, тесты зелёные.</li><li>Модели агентов совпадают с раскладкой, <code>model=</code> их переключает.</li><li>Чтение из git идёт без запросов подтверждения.</li></ul></div>
+      <div class="box"><span class="tag warn">Ещё не проверено</span>
+        <ul><li>Правка про LSP: в прогонах на ПК агенты его не вызывали.</li><li>Имена MCP-серверов в запретах агентов.</li><li>Статус и описание задачи в VS Code.</li><li>Пять задач подряд с журналом (этап Б).</li></ul>
+        <p class="small">План и журнал проверки: <code>ACCEPTANCE.md</code> и <code>ACCEPTANCE-log.md</code>.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+document.addEventListener('click', function (e) {
+  var b = e.target.closest('button.copy'); if (!b) return;
+  var src = b.dataset.copyFrom ? document.getElementById(b.dataset.copyFrom) : null;
+  var text = src ? src.textContent : b.dataset.copy;
+  var done = function () { var t = b.textContent; b.textContent = 'готово'; setTimeout(function () { b.textContent = t; }, 1200); };
+  var fallback = function () {
+    var node = src || b.previousElementSibling; if (!node) return;
+    var r = document.createRange(); r.selectNodeContents(node);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+  };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch (err) { fallback(); }
+});
+</script>
+
+</body>
+</html>

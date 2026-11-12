@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git ls-files *)",
+      "Bash(git grep *)",
+      "Bash(git worktree list *)",
+      "Bash(git stash create)",
+      "Bash(git rev-parse *)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet test *)",
+      "Bash(dotnet *check-claims.dll*)",
+      "Edit(~/.arrma-tmp/**)",
+      "PowerShell(git status *)",
+      "PowerShell(git log *)",
+      "PowerShell(git diff *)",
+      "PowerShell(git show *)",
+      "PowerShell(git ls-files *)",
+      "PowerShell(git grep *)",
+      "PowerShell(git worktree list *)",
+      "PowerShell(git stash create)",
+      "PowerShell(git rev-parse *)",
+      "PowerShell(dotnet build *)",
+      "PowerShell(dotnet test *)",
+      "PowerShell(dotnet *check-claims.dll*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dotnet \"$HOME/.claude/tools/stop-check/stop-check.dll\" Your.sln \"Category!=Slow\"",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}
